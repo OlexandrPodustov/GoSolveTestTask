@@ -68,7 +68,7 @@ func (a *App) FindIndex(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	res := a.findIndex(target)
+	res := findIndex(a.data, target)
 	if res == -1 {
 		resp := Response{ErrorMessage: fmt.Sprintf("target number %v is not found", target)}
 		a.renderResponse(w, resp)
@@ -85,6 +85,43 @@ func (a *App) renderResponse(w http.ResponseWriter, data Response) {
 	a.Logger.Debug("renderResponse", "resp", data)
 }
 
-func (a *App) findIndex(target int) int {
+func findIndex(nums []int, target int) int {
+	if len(nums) == 0 {
+		return -1
+	}
+	low, high := 0, len(nums)-1
+	med := len(nums) / 2
+
+	for low <= high {
+		if nums[med] == target {
+			return med
+		} else if target > nums[med] {
+			low = med + 1
+		} else {
+			high = med - 1
+		}
+		med = (high + low) / 2
+	}
+
+	return withinTen(nums, target, med)
+}
+
+func withinTen(nums []int, target int, med int) int {
+	if len(nums) == 1 {
+		if target-nums[0] <= target/10 {
+			return 0
+		} else if nums[0]-target <= target/10 {
+			return 0
+		}
+
+		return -1
+	}
+
+	if prev := med - 1; prev >= 0 && target-nums[prev] <= target/10 {
+		return prev
+	} else if next := med + 1; next < len(nums) && nums[next]-target <= target/10 {
+		return next
+	}
+
 	return -1
 }
