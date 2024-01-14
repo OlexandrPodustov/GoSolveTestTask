@@ -1,12 +1,13 @@
 package app
 
 import (
-	"GoSolveTestTask/config"
 	"context"
 	"fmt"
 	"log/slog"
 	"os"
 	"time"
+
+	"GoSolveTestTask/config"
 )
 
 type App struct {
@@ -14,13 +15,17 @@ type App struct {
 	Logger *slog.Logger
 }
 
-func InitApp(cfg *config.Config) (*App, error) {
+func InitApp(cfg *config.Config) *App {
+	logLevel := slog.LevelDebug
+	if cfg != nil {
+		logLevel = cfg.LogLevel.Level()
+	}
 	opts := &slog.HandlerOptions{
-		Level: cfg.LogLevel,
+		Level: logLevel,
 	}
 	logger := slog.New(slog.NewJSONHandler(os.Stdout, opts))
 
-	return &App{Logger: logger}, nil
+	return &App{Logger: logger}
 }
 
 func (a *App) ReadInput() {
@@ -72,9 +77,7 @@ func findIndex(nums []int, target int) int {
 
 func withinTen(nums []int, target int, med int) int {
 	if len(nums) == 1 {
-		if target-nums[0] <= target/10 {
-			return 0
-		} else if nums[0]-target <= target/10 {
+		if abs(target-nums[0]) <= target/10 {
 			return 0
 		}
 
@@ -90,4 +93,11 @@ func withinTen(nums []int, target int, med int) int {
 	}
 
 	return -1
+}
+
+func abs(num int) int {
+	if num < 0 {
+		return num * -1
+	}
+	return num
 }

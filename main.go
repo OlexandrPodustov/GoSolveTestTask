@@ -29,10 +29,7 @@ func main() {
 		}
 	}
 
-	app, err := app.InitApp(cfg)
-	if err != nil {
-		log.Fatal(err)
-	}
+	app := app.InitApp(cfg)
 	app.ReadInput()
 
 	srv := service.New(app.Logger, app)
