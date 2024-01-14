@@ -3,12 +3,15 @@ package app
 import (
 	"context"
 	"fmt"
+	"io"
 	"log/slog"
 	"os"
 	"time"
 
 	"GoSolveTestTask/config"
 )
+
+const allowedDeviationPercent = 10
 
 type App struct {
 	data   []int
@@ -28,15 +31,17 @@ func InitApp(cfg *config.Config) *App {
 	return &App{Logger: logger}
 }
 
-func (a *App) ReadInput() {
+func (a *App) ReadInput() error {
 	timeStart := time.Now()
 
 	result := make([]int, 0, 1_000_010)
 	var integer int
 	for {
-		_, err := fmt.Scanln(&integer)
-		if err != nil {
-			a.Logger.Info("ReadInput", "err", err)
+		if _, err := fmt.Scanln(&integer); err != nil {
+			a.Logger.Error("ReadInput", "err", err)
+			if err != io.EOF {
+				return err
+			}
 			break
 		}
 
@@ -45,6 +50,8 @@ func (a *App) ReadInput() {
 	a.Logger.Info("read records from input", "len", len(result), "in", time.Since(timeStart).String())
 
 	a.data = result
+
+	return nil
 }
 
 func (a *App) GetIndex(ctx context.Context, target int) (int, error) {
@@ -77,16 +84,16 @@ func findIndex(nums []int, target int) int {
 
 func withinTen(nums []int, target int, med int) int {
 	if len(nums) == 1 {
-		if abs(target-nums[0]) <= target/10 {
+		if abs(target-nums[0]) <= target/allowedDeviationPercent {
 			return 0
 		}
 
 		return -1
 	}
 
-	if target-nums[med] <= target/10 {
+	if abs(target-nums[med]) <= target/allowedDeviationPercent {
 		return med
-	} else if next := med + 1; next < len(nums) && nums[next]-target <= target/10 {
+	} else if next := med + 1; next < len(nums) && nums[next]-target <= target/allowedDeviationPercent {
 		return next
 	}
 

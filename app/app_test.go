@@ -48,18 +48,15 @@ func TestApp_ReadInput(t *testing.T) {
 		data   []int
 		Logger *slog.Logger
 	}
-
-	logger := slog.New(slog.NewJSONHandler(os.Stdout, &slog.HandlerOptions{Level: slog.LevelDebug}))
 	tests := []struct {
-		name   string
-		fields fields
+		name    string
+		fields  fields
+		wantErr bool
 	}{
 		{
-			name: "1",
-			fields: fields{
-				data:   []int{},
-				Logger: logger,
-			},
+			name:    "1",
+			fields:  fields{data: []int{}, Logger: slog.New(slog.NewJSONHandler(os.Stdout, &slog.HandlerOptions{Level: slog.LevelDebug}))},
+			wantErr: false,
 		},
 	}
 	for _, tt := range tests {
@@ -68,7 +65,9 @@ func TestApp_ReadInput(t *testing.T) {
 				data:   tt.fields.data,
 				Logger: tt.fields.Logger,
 			}
-			a.ReadInput()
+			if err := a.ReadInput(); (err != nil) != tt.wantErr {
+				t.Errorf("App.ReadInput() error = %v, wantErr %v", err, tt.wantErr)
+			}
 		})
 	}
 }
@@ -260,6 +259,22 @@ func Test_findIndex(t *testing.T) {
 				target: 98,
 			},
 			want: 3,
+		},
+		{
+			name: "14",
+			args: args{
+				nums:   []int{100, 200},
+				target: 10,
+			},
+			want: -1,
+		},
+		{
+			name: "15",
+			args: args{
+				nums:   []int{1, 2, 100},
+				target: 90,
+			},
+			want: -1,
 		},
 	}
 	for _, tt := range tests {

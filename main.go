@@ -30,7 +30,9 @@ func main() {
 	}
 
 	app := app.InitApp(cfg)
-	app.ReadInput()
+	if err := app.ReadInput(); err != nil {
+		log.Fatal(err)
+	}
 
 	srv := service.New(app.Logger, app)
 	router := chi.NewRouter()
