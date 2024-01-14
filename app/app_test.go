@@ -253,6 +253,14 @@ func Test_findIndex(t *testing.T) {
 			},
 			want: 0,
 		},
+		{
+			name: "13",
+			args: args{
+				nums:   []int{0, 10, 20, 100},
+				target: 98,
+			},
+			want: 3,
+		},
 	}
 	for _, tt := range tests {
 		tt := tt
