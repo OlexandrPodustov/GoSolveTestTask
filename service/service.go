@@ -24,14 +24,15 @@ func New(log *slog.Logger, ds DataService) *Server {
 	return &Server{Logger: log, DataService: ds}
 }
 
-func (s *Server) FindIndex(w http.ResponseWriter, r *http.Request) {
-	type response struct {
-		Index        int    `json:"index"`
-		ErrorMessage string `json:"error_message,omitempty"`
-	}
+type response struct {
+	Index        int    `json:"index"`
+	ErrorMessage string `json:"error_message,omitempty"`
+}
 
+func (s *Server) FindIndex(w http.ResponseWriter, r *http.Request) {
 	target, err := strconv.Atoi(chi.URLParam(r, "value"))
 	if err != nil {
+		w.WriteHeader(http.StatusBadRequest)
 		resp := response{ErrorMessage: fmt.Sprintf("target number %v is not an integer, err: %v", target, err)}
 		s.renderResponse(w, resp)
 		return
@@ -40,6 +41,7 @@ func (s *Server) FindIndex(w http.ResponseWriter, r *http.Request) {
 
 	res, err := s.DataService.GetIndex(r.Context(), target)
 	if err != nil {
+		w.WriteHeader(http.StatusBadRequest)
 		resp := response{ErrorMessage: err.Error()}
 		s.renderResponse(w, resp)
 		return
