@@ -86,8 +86,6 @@ func withinTen(nums []int, target int, med int) int {
 
 	if target-nums[med] <= target/10 {
 		return med
-	} else if prev := med - 1; prev >= 0 && target-nums[prev] <= target/10 {
-		return prev
 	} else if next := med + 1; next < len(nums) && nums[next]-target <= target/10 {
 		return next
 	}
